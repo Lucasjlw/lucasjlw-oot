@@ -5,8 +5,7 @@ fn main() {
     let args: Vec<String> = std::env::args().collect();
 
     if &args[1] == "serve" {
-        println!("this is running");
-        server::serve("base.html");
+        server::serve("src/base.html");
     } else {
         run();
     }
