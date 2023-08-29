@@ -4,6 +4,19 @@ use std::{
 };
 use std::fs;
 
+fn createResponse(status: String, contentType: String, mut content: Vec<u8>) -> Vec<u8> {
+    let contentLength = content.len();
+
+    let mut response: Vec<u8> = Vec::new();
+    response.write_all("HTTP/1.1 200 OK\r\n".as_bytes());
+    response.write_all(format!("Content-Type: {contentType}\r\n").as_bytes());
+    response.write_all(format!("Content-Length: {contentLength}\r\n\r\n").as_bytes());
+
+    response.append(&mut content);
+
+    return response;
+}
+
 pub fn serve(filePath: &str) {
     let listener = TcpListener::bind("127.0.0.1:3000").unwrap();
 
@@ -15,46 +28,34 @@ pub fn serve(filePath: &str) {
 
         println!("Request: {}", request_line);
 
+        let response: Vec<u8>;
         if (request_line == "GET /pkg/oot.js HTTP/1.1") {
-            let jsContent = fs::read_to_string("pkg/oot.js").unwrap();
-            let jsContentLength = jsContent.len();
-
-            let mut response = String::new();
-            response.push_str("HTTP/1.1 200 OK\r\n");
-            response.push_str("Content-Type: text/javascript; charset=UTF-8\r\n");
-            response.push_str(format!("Content-Length: {jsContentLength}\r\n\r\n").as_str());
-            response.push_str(jsContent.as_str());
-
-            stream.write_all(response.as_bytes()).unwrap();
-
-            continue;
+            let content = fs::read("pkg/oot.js").unwrap();
+            response = createResponse(
+                "".to_string(), 
+                "text/javascript".to_string(), 
+                content
+            );
         }
 
         else if (request_line == "GET /pkg/oot_bg.wasm HTTP/1.1") {
-            let wasmContent = fs::read("pkg/oot_bg.wasm").unwrap();
-            let wasmContentLength = wasmContent.len();
-
-            let mut response = String::new();
-            response.push_str("HTTP/1.1 200 OK\r\n");
-            response.push_str("Content-Type: application/wasm; charset=UTF-8\r\n");
-            response.push_str(format!("Content-Length: {wasmContentLength}\r\n\r\n").as_str());
-            
-            stream.write_all(response.as_bytes()).unwrap();
-            stream.write_all(&wasmContent).unwrap();
-
-            continue;
+            let content = fs::read("pkg/oot_bg.wasm").unwrap();
+            response = createResponse(
+                "".to_string(), 
+                "application/wasm".to_string(), 
+                content
+            );
         }
 
-        let htmlContent = fs::read_to_string(filePath).unwrap();
-        let htmlContentLength = htmlContent.len();
+        else {
+            let content = fs::read("src/base.html").unwrap();
+            response = createResponse(
+                "".to_string(), 
+                "text/html".to_string(), 
+                content
+            );
+        }
 
-        let mut response = String::new();
-        response.push_str("HTTP/1.1 200 OK\r\n");
-        response.push_str("Content-Type: text/html; charset=UTF-8\r\n");
-        response.push_str(format!("Content-Length: {htmlContentLength}\r\n\r\n").as_str());
-        response.push_str(htmlContent.as_str());
-
-
-        stream.write_all(response.as_bytes()).unwrap();
+        stream.write_all(&response).unwrap();
     }
 }   
