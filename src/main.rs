@@ -1,3 +1,6 @@
+mod server;
+
 fn main() {
-    run();
+    // run();
+    server::serve();
 }
