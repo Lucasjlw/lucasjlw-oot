@@ -29,31 +29,48 @@ pub fn serve(filePath: &str) {
         println!("Request: {}", request_line);
 
         let response: Vec<u8>;
-        if (request_line == "GET /pkg/lucasjlw_oot.js HTTP/1.1") {
-            let content = fs::read("pkg/lucasjlw_oot.js").unwrap();
-            response = createResponse(
-                "".to_string(), 
-                "text/javascript".to_string(), 
-                content
-            );
-        }
 
-        else if (request_line == "GET /pkg/lucasjlw_oot_bg.wasm HTTP/1.1") {
-            let content = fs::read("pkg/lucasjlw_oot_bg.wasm").unwrap();
-            response = createResponse(
-                "".to_string(), 
-                "application/wasm".to_string(), 
-                content
-            );
-        }
-
-        else {
-            let content = fs::read("src/base.html").unwrap();
-            response = createResponse(
-                "".to_string(), 
-                "text/html".to_string(), 
-                content
-            );
+        match request_line.as_str() {
+            "GET / HTTP/1.1" => {
+                let content = fs::read(filePath).unwrap();
+                response = createResponse(
+                    "".to_string(), 
+                    "text/html".to_string(), 
+                    content
+                );
+            },
+            "GET /pkg/lucasjlw_oot.js HTTP/1.1" => {
+                let content = fs::read("pkg/lucasjlw_oot.js").unwrap();
+                response = createResponse(
+                    "".to_string(), 
+                    "text/javascript".to_string(), 
+                    content
+                );
+            },
+            "GET /pkg/lucasjlw_oot_bg.wasm HTTP/1.1" => {
+                let content = fs::read("pkg/lucasjlw_oot_bg.wasm").unwrap();
+                response = createResponse(
+                    "".to_string(), 
+                    "application/wasm".to_string(), 
+                    content
+                );
+            },
+            "GET /src/shader.wgsl HTTP/1.1" => {
+                let content = fs::read("src/shader.wgsl").unwrap();
+                response = createResponse(
+                    "".to_string(), 
+                    "text/plain".to_string(), 
+                    content
+                );
+            }
+            _ => {
+                let content = fs::read("src/base.html").unwrap();
+                response = createResponse(
+                    "".to_string(), 
+                    "text/html".to_string(), 
+                    content
+                );
+            }
         }
 
         stream.write_all(&response).unwrap();
