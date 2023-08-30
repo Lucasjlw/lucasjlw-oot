@@ -29,8 +29,8 @@ pub fn serve(filePath: &str) {
         println!("Request: {}", request_line);
 
         let response: Vec<u8>;
-        if (request_line == "GET /pkg/oot.js HTTP/1.1") {
-            let content = fs::read("pkg/oot.js").unwrap();
+        if (request_line == "GET /pkg/lucasjlw_oot.js HTTP/1.1") {
+            let content = fs::read("pkg/lucasjlw_oot.js").unwrap();
             response = createResponse(
                 "".to_string(), 
                 "text/javascript".to_string(), 
@@ -38,8 +38,8 @@ pub fn serve(filePath: &str) {
             );
         }
 
-        else if (request_line == "GET /pkg/oot_bg.wasm HTTP/1.1") {
-            let content = fs::read("pkg/oot_bg.wasm").unwrap();
+        else if (request_line == "GET /pkg/lucasjlw_oot_bg.wasm HTTP/1.1") {
+            let content = fs::read("pkg/lucasjlw_oot_bg.wasm").unwrap();
             response = createResponse(
                 "".to_string(), 
                 "application/wasm".to_string(), 
