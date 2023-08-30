@@ -1,5 +1,6 @@
 use std::f32::consts::E;
 use wgpu::util::DeviceExt;
+mod camera;
 
 use winit::{
     event::*,
@@ -113,6 +114,7 @@ struct State {
     whichIndexBuffer: WhichIndexBuffer,
     index_buffer: wgpu::Buffer,
     num_indices: u32,
+    camera: camera::Camera
 }
 
 impl State {
@@ -233,6 +235,16 @@ impl State {
 
         let num_indices = indices.len() as u32;
 
+        let camera = camera::Camera {
+            eye: (0.0, 1.0, 2.0).into(),
+            target: (0.0, 0.0, 0.0).into(),
+            up: cgmath::Vector3::unit_y(),
+            aspect: config.width as f32,
+            fovy: 45.0,
+            znear: 0.1,
+            zfar: 100.0
+        };
+
         Self {
             window,
             surface,
@@ -245,6 +257,7 @@ impl State {
             index_buffer,
             whichIndexBuffer,
             num_indices,
+            camera
         }
     }
 
