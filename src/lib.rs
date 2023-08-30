@@ -109,6 +109,7 @@ struct State {
     camera_bind_group: wgpu::BindGroup,
     window: Window,
     rotation_uniform: RotationUniform,
+    rotation_buffer: wgpu::Buffer,
     rotation_bind_group: wgpu::BindGroup,
 }
 
@@ -291,7 +292,7 @@ impl State {
         });
 
     let rotation_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-        layout: &camera_bind_group_layout,
+        layout: &rotation_bind_group_layout,
         entries: &[wgpu::BindGroupEntry {
             binding: 0,
             resource: rotation_buffer.as_entire_binding(),
@@ -302,7 +303,7 @@ impl State {
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("Render Pipeline Layout"),
-                bind_group_layouts: &[&texture_bind_group_layout, &camera_bind_group_layout],
+                bind_group_layouts: &[&texture_bind_group_layout, &camera_bind_group_layout, &rotation_bind_group_layout],
                 push_constant_ranges: &[],
             });
 
@@ -381,7 +382,8 @@ impl State {
             camera_uniform,
             window,
             rotation_uniform,
-            rotation_bind_group
+            rotation_bind_group,
+            rotation_buffer
         }
     }
 
@@ -412,7 +414,13 @@ impl State {
             0,
             bytemuck::cast_slice(&[self.camera_uniform]),
         );
-        self.rotation_uniform.add_degree(0.01);
+
+        self.rotation_uniform.add_degree(1.0);
+        self.queue.write_buffer(
+            &self.rotation_buffer,
+            0,
+            bytemuck::cast_slice(&[self.rotation_uniform]),
+        )
     }
 
     fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
